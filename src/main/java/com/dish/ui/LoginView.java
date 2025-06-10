@@ -1,37 +1,42 @@
 // Filename: LoginView.java
 package com.dish.ui;
 
-import java.awt.BorderLayout; // Added
-import java.awt.Color;
+import java.awt.BorderLayout;
+import java.awt.Color; // Added
 import java.awt.Dimension;
-import java.awt.Font; // Add this import
-import java.awt.FontMetrics;
-import java.awt.Graphics; // Added
-import java.awt.GridBagConstraints;
+import java.awt.Font;
+import java.awt.FontMetrics; // Add this import
+import java.awt.Graphics;
+import java.awt.GridBagConstraints; // Added
 import java.awt.GridBagLayout;
 import java.awt.Image;
-import java.awt.Insets; // Added
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent; // Add this import
+import java.awt.Insets;
+import java.awt.event.FocusAdapter; // Added
+import java.awt.event.FocusEvent;
 import java.net.URL; // Add this import
 
-import javax.swing.BorderFactory;
+import javax.swing.BorderFactory; // Add this import
 import javax.swing.ImageIcon;
-import javax.swing.JButton; // Added
-import javax.swing.JFrame;
-import javax.swing.JLabel; // Added
-import javax.swing.JOptionPane;
-import javax.swing.JPanel; // Added
-import javax.swing.JPasswordField;
+import javax.swing.JButton;
+import javax.swing.JFrame; // Added
+import javax.swing.JLabel;
+import javax.swing.JOptionPane; // Added
+import javax.swing.JPanel;
+import javax.swing.JPasswordField; // Added
 import javax.swing.JTextField;
-import javax.swing.border.Border; // Added
-import javax.swing.border.LineBorder;
+import javax.swing.SwingUtilities;
+import javax.swing.border.Border;
+import javax.swing.border.LineBorder; // Added
+
+import com.dish.dao.UserDAO;
 
 public class LoginView extends JFrame {
 
     private JTextField usernameField;
     private JPasswordField passwordField;
     private JButton loginButton; // Declare loginButton as a class member
+
+    private final UserDAO userDAO;
 
     private static final String USERNAME_PLACEHOLDER = "Enter your username";
     private static final String PASSWORD_PLACEHOLDER = "Enter your password";
@@ -56,6 +61,7 @@ public class LoginView extends JFrame {
 
     public LoginView() {
         super("Dish Information Management");
+        this.userDAO = new UserDAO(); // Initialize the UserDAO
         initializeUI();
     }
 
@@ -359,7 +365,9 @@ public class LoginView extends JFrame {
         String username = usernameField.getText();
         String password = new String(passwordField.getPassword());
 
-        if (USERNAME_PLACEHOLDER.equals(username) || PASSWORD_PLACEHOLDER.equals(String.valueOf(passwordField.getPassword()))) {
+        System.out.println("LOGIN VIEW: Attempting login with user='" + username + "', pass='" + password + "'"); // <-- ADD THIS LINE
+
+        if (USERNAME_PLACEHOLDER.equals(username) || PASSWORD_PLACEHOLDER.equals(password) || username.isEmpty() || password.isEmpty()) {
              JOptionPane.showMessageDialog(this,
                     "Please enter your username and password.",
                     "Login Failed",
@@ -367,9 +375,9 @@ public class LoginView extends JFrame {
             return;
         }
 
-        if ("admin".equals(username) && "password".equals(password)) {
+        if (userDAO.validateUser(username, password)) {
             this.dispose(); // Close the login window
-            new MenuManager().setVisible(true); // Open the MenuManager window
+            SwingUtilities.invokeLater(() -> new MenuManager().setVisible(true)); // Open the MenuManager window
         } else {
             JOptionPane.showMessageDialog(this,
                     "Invalid username or password.",

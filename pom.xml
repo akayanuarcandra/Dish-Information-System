@@ -16,18 +16,22 @@
 
           
     <dependencies>
-        <!-- Core FlatLaf library -->
         <dependency>
             <groupId>com.formdev</groupId>
             <artifactId>flatlaf</artifactId>
-            <version>3.6</version> <!-- Match the version with the themes for consistency -->
+            <version>3.6</version>
         </dependency>
 
-        <!-- FlatLaf IntelliJ Themes (if you are using themes from here) -->
         <dependency>
             <groupId>com.formdev</groupId>
             <artifactId>flatlaf-intellij-themes</artifactId>
             <version>3.6</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <version>8.0.33</version>
         </dependency>
     </dependencies>
 
