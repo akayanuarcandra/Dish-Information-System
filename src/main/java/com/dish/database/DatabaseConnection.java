@@ -19,7 +19,6 @@ public class DatabaseConnection {
                 // The new driver class name for MySQL Connector/J 8.0+
                 Class.forName("com.mysql.cj.jdbc.Driver");
                 connection = DriverManager.getConnection(URL, USER, PASSWORD);
-                System.out.println("DATABASE: Connection to " + URL + " was successful!"); // <-- ADD THIS LINE
             } catch (ClassNotFoundException e) {
                 System.err.println("MySQL JDBC Driver not found!");
                 e.printStackTrace();
