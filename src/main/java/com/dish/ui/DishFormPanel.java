@@ -1,16 +1,36 @@
 package com.dish.ui;
 
-import com.dish.dao.DishDAO;
-import com.dish.model.Dish;
-
-import javax.imageio.ImageIO;
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import javax.swing.filechooser.FileNameExtensionFilter;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Image;
+import java.awt.Insets;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+
+import javax.imageio.ImageIO;
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
+import javax.swing.filechooser.FileNameExtensionFilter;
+
+import com.dish.dao.DishDAO;
+import com.dish.model.Dish;
 
 public class DishFormPanel extends JPanel {
 
@@ -21,7 +41,11 @@ public class DishFormPanel extends JPanel {
 
     // --- Form UI Components ---
     private final JTextField nameField = new JTextField(30);
-    private final JTextField typeField = new JTextField(30);
+    // private final JTextField typeField = new JTextField(30);
+    // --- MODIFICATION: Replaced JTextField with JComboBox for Dish Type ---
+    private final String[] DISH_TYPES = {"Main Course", "Appetizer", "Dessert", "Beverage", "Side Dish", "Salad"};
+    private final JComboBox<String> typeComboBox = new JComboBox<>(DISH_TYPES);
+    // --- END MODIFICATION ---
     private final JTextField priceField = new JTextField(10);
     private final JTextArea ingredientsArea = new JTextArea(3, 30);
     private final JTextArea introArea = new JTextArea(3, 30);
@@ -71,7 +95,10 @@ public class DishFormPanel extends JPanel {
         // --- Form Fields ---
         int y = 1; // Start at row 1
         addFormField(new JLabel("Name:"), nameField, y++);
-        addFormField(new JLabel("Type:"), typeField, y++);
+        // addFormField(new JLabel("Type:"), typeField, y++);
+        // --- MODIFICATION: Use the new JComboBox instead of the old JTextField ---
+        addFormField(new JLabel("Type:"), typeComboBox, y++);
+        // --- END MODIFICATION ---
         addFormField(new JLabel("Price (¥):"), priceField, y++);
 
         // Text Areas need special handling for scroll panes
@@ -150,7 +177,10 @@ public class DishFormPanel extends JPanel {
 
     private void populateForm() {
         nameField.setText(dishToEdit.getName());
-        typeField.setText(dishToEdit.getType());
+        // typeField.setText(dishToEdit.getType());
+        // --- MODIFICATION: Set the selected item in the dropdown for editing ---
+        typeComboBox.setSelectedItem(dishToEdit.getType());
+        // --- END MODIFICATION ---
         priceField.setText(String.format("%.2f", dishToEdit.getPrice()));
         ingredientsArea.setText(dishToEdit.getIngredients());
         introArea.setText(dishToEdit.getIntroduction());
@@ -184,7 +214,10 @@ public class DishFormPanel extends JPanel {
     private void saveDish() {
         // Get all data from fields and validate it
         String name = nameField.getText().trim();
-        String type = typeField.getText().trim();
+        // String type = typeField.getText().trim();
+        // --- MODIFICATION: Get the selected value from the dropdown ---
+        String type = (String) typeComboBox.getSelectedItem();
+        // --- END MODIFICATION ---
         String priceStr = priceField.getText().trim().replace(",", ".");
         String ingredients = ingredientsArea.getText().trim();
         String intro = introArea.getText().trim();
