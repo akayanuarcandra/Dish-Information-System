@@ -12,7 +12,6 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JTable;
-import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.table.TableCellEditor;
 
@@ -21,15 +20,8 @@ public class TableActionCellEditor extends AbstractCellEditor implements TableCe
     private final JPanel panel;
     private final JButton editButton;
     private final JButton deleteButton;
-    private final TableActionListener listener;
-    private int editingRow;
 
-    public TableActionCellEditor(TableActionListener listener) {
-        this.listener = listener;
-
-        // --- Create Panel and Buttons ---
-        // We re-create the panel and buttons here to handle actions,
-        // while the TableActionCellRenderer only handles the display.
+    public TableActionCellEditor(JTable table, TableActionListener listener) {
         panel = new JPanel(new GridBagLayout());
         panel.setOpaque(true);
 
@@ -39,7 +31,6 @@ public class TableActionCellEditor extends AbstractCellEditor implements TableCe
         stylizeButton(editButton, new Color(60, 179, 113), new Color(46, 139, 87));
         stylizeButton(deleteButton, new Color(220, 20, 60), new Color(178, 34, 34));
 
-        // --- Layout ---
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.weightx = 1.0;
@@ -52,22 +43,26 @@ public class TableActionCellEditor extends AbstractCellEditor implements TableCe
         gbc.insets = new Insets(0, 5, 0, 0);
         panel.add(deleteButton, gbc);
 
-        // --- Action Listeners ---
-        // When a button is clicked, it calls the appropriate listener method
-        // and then stops the cell editing process.
+        // --- FINAL, ROBUST ACTION LISTENERS ---
         editButton.addActionListener(e -> {
-            if (listener != null) {
-                // Defer the action to prevent table lock-ups while processing the event
-                SwingUtilities.invokeLater(() -> listener.onEdit(editingRow));
-            }
+            // Get the currently edited row's index BEFORE stopping the edit.
+            int row = table.getEditingRow();
+            
+            // Now, tell the table to stop editing. This cleans up the UI.
             fireEditingStopped();
+            
+            // With the correct row index captured, call the listener.
+            if (row != -1 && listener != null) {
+                listener.onEdit(row);
+            }
         });
 
         deleteButton.addActionListener(e -> {
-            if (listener != null) {
-                SwingUtilities.invokeLater(() -> listener.onDelete(editingRow));
-            }
+            int row = table.getEditingRow();
             fireEditingStopped();
+            if (row != -1 && listener != null) {
+                listener.onDelete(row);
+            }
         });
     }
     
@@ -90,16 +85,11 @@ public class TableActionCellEditor extends AbstractCellEditor implements TableCe
 
     @Override
     public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-        // Store the row being edited so the action listeners can use it
-        this.editingRow = row;
+        // This method just shows the editor component. No state needs to be stored here.
         panel.setBackground(UIManager.getColor("Button.background"));
         return panel;
     }
 
-    /**
-     * This method is required, but we don't need to return a specific value
-     * since our actions are handled by listeners.
-     */
     @Override
     public Object getCellEditorValue() {
         return "";

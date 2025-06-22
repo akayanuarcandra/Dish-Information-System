@@ -1,18 +1,10 @@
 package com.dish.ui;
 
-import com.dish.dao.DishDAO;
-import com.dish.model.Dish;
-import com.dish.ui.table.TableActionCellEditor;
-import com.dish.ui.table.TableActionCellRenderer;
-import com.dish.ui.table.TableActionListener;
-
-import javax.imageio.ImageIO;
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableColumn;
-import javax.swing.table.TableRowSorter;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.Image;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -20,6 +12,29 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.PatternSyntaxException;
+
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.RowFilter;
+import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableRowSorter;
+
+import com.dish.dao.DishDAO;
+import com.dish.model.Dish;
+import com.dish.ui.table.TableActionCellEditor;
+import com.dish.ui.table.TableActionCellRenderer;
+import com.dish.ui.table.TableActionListener;
 
 public class SearchDishPanel extends JPanel {
 
@@ -30,8 +45,10 @@ public class SearchDishPanel extends JPanel {
     private final MenuManager mainFrame; // To communicate back
 
     private final String[] TABLE_COLUMNS = {"ID", "Dish Name", "Dish Type", "Price (¥)", "Ingredients", "Introduction", "Photo", "Actions"};
+    private final int idColumnIndex = 0;
+    private final int priceColumnIndex = 3;
     private final int photoColumnIndex = 6;
-    private final int TABLE_IMAGE_HEIGHT = 50;
+    private final int TABLE_IMAGE_HEIGHT = 75;
 
     public SearchDishPanel(DishDAO dishDAO, MenuManager mainFrame) {
         this.dishDAO = dishDAO;
@@ -51,9 +68,19 @@ public class SearchDishPanel extends JPanel {
             public boolean isCellEditable(int row, int column) {
                 return column == TABLE_COLUMNS.length - 1;
             }
+
             @Override
             public Class<?> getColumnClass(int columnIndex) {
-                return (columnIndex == photoColumnIndex) ? ImageIcon.class : super.getColumnClass(columnIndex);
+                switch (columnIndex) {
+                    case idColumnIndex:
+                        return Integer.class;
+                    case priceColumnIndex:
+                        return Double.class;
+                    case photoColumnIndex:
+                        return ImageIcon.class;
+                    default:
+                        return String.class;
+                }
             }
         };
         dishTable = new JTable(dishTableModel);
@@ -119,12 +146,21 @@ public class SearchDishPanel extends JPanel {
         dishTable.setRowHeight(TABLE_IMAGE_HEIGHT + 10);
         dishTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
+        // --- NEW CODE TO DISABLE SORTING ---
+        // This loops through all columns and prevents the user from sorting them by clicking the header.
+        // The sorter is still active for filtering (searching), but not for sorting.
+        for (int i = 0; i < dishTable.getColumnCount(); i++) {
+            sorter.setSortable(i, false);
+        }
+        // --- END OF NEW CODE ---
+
         TableColumn actionsColumn = dishTable.getColumn("Actions");
         
-        // Use the new listener-based editor/renderer
         TableActionListener listener = new TableActionListener() {
             @Override
             public void onEdit(int row) {
+                // Because sorting is disabled, the view row is now ALWAYS the same as the model row.
+                // This makes the logic simple and reliable.
                 int modelRow = dishTable.convertRowIndexToModel(row);
                 int dishId = (int) dishTable.getValueAt(modelRow, 0);
                 mainFrame.showEditDishForm(dishId);
@@ -138,7 +174,8 @@ public class SearchDishPanel extends JPanel {
         };
         
         actionsColumn.setCellRenderer(new TableActionCellRenderer());
-        actionsColumn.setCellEditor(new TableActionCellEditor(listener));
+        // Use the simple editor again; the complex one is no longer needed since the row indices are stable.
+        actionsColumn.setCellEditor(new TableActionCellEditor(dishTable, listener));
         actionsColumn.setMinWidth(150);
         actionsColumn.setMaxWidth(180);
         actionsColumn.setPreferredWidth(160);
@@ -147,18 +184,33 @@ public class SearchDishPanel extends JPanel {
             TableColumn photoCol = dishTable.getColumnModel().getColumn(photoColumnIndex);
             photoCol.setPreferredWidth(TABLE_IMAGE_HEIGHT + 20);
         }
+
+        TableColumn priceCol = dishTable.getColumnModel().getColumn(priceColumnIndex);
+        priceCol.setCellRenderer(new DefaultTableCellRenderer() {
+            @Override
+            public void setValue(Object value) {
+                if (value instanceof Double) {
+                    value = String.format("%.2f", (Double) value);
+                }
+                super.setValue(value);
+            }
+        });
     }
 
     public void refreshTableData() {
         dishTableModel.setRowCount(0);
         List<Dish> dishList = dishDAO.getAllDishes();
         for (Dish dish : dishList) {
-            ImageIcon dishImage = loadImageIconFromFile(dish.getPhotoPath(), 50, 50);
+            ImageIcon dishImage = loadImageIconFromFile(dish.getPhotoPath(), 75, 75);
             dishTableModel.addRow(new Object[]{
-                dish.getId(), dish.getName(), dish.getType(),
-                String.format("%.2f", dish.getPrice()),
-                dish.getIngredients(), dish.getIntroduction(),
-                dishImage, "Actions"
+                dish.getId(),
+                dish.getName(),
+                dish.getType(),
+                dish.getPrice(),
+                dish.getIngredients(),
+                dish.getIntroduction(),
+                dishImage,
+                "Actions"
             });
         }
     }
@@ -183,11 +235,11 @@ public class SearchDishPanel extends JPanel {
 
     private ImageIcon loadImageIconFromFile(String filePath, int width, int height) {
         if (filePath == null || filePath.isEmpty()) {
-            return null; // No image path provided
+            return null;
         }
         File imgFile = new File(filePath);
         if (!imgFile.exists()) {
-            return null; // File does not exist
+            return null;
         }
         try {
             BufferedImage img = ImageIO.read(imgFile);
@@ -198,6 +250,6 @@ public class SearchDishPanel extends JPanel {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return null; // Failed to load image
+        return null;
     }
 }
