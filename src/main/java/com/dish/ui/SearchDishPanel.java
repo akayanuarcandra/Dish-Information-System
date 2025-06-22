@@ -110,6 +110,14 @@ public class SearchDishPanel extends JPanel {
         topPanel.add(searchInputPanel, BorderLayout.WEST);
 
         ActionListener searchAction = e -> {
+            // --- THIS IS THE KEY FIX ---
+            // If a cell is currently being edited (e.g., the action buttons are open),
+            // programmatically stop the editing process before applying a filter.
+            if (dishTable.isEditing()) {
+                dishTable.getCellEditor().stopCellEditing();
+            }
+            // --- END OF KEY FIX ---
+
             String text = searchField.getText();
             if (text.trim().isEmpty()) {
                 sorter.setRowFilter(null);
@@ -129,6 +137,10 @@ public class SearchDishPanel extends JPanel {
 
         JButton clearSearchButton = new JButton("Show All");
         clearSearchButton.addActionListener(e -> {
+            // Also add the check here for safety
+            if (dishTable.isEditing()) {
+                dishTable.getCellEditor().stopCellEditing();
+            }
             searchField.setText("");
             sorter.setRowFilter(null);
         });
@@ -145,37 +157,35 @@ public class SearchDishPanel extends JPanel {
         dishTable.getTableHeader().setFont(new Font("Arial", Font.BOLD, 12));
         dishTable.setRowHeight(TABLE_IMAGE_HEIGHT + 10);
         dishTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-
-        // --- NEW CODE TO DISABLE SORTING ---
-        // This loops through all columns and prevents the user from sorting them by clicking the header.
-        // The sorter is still active for filtering (searching), but not for sorting.
+        
         for (int i = 0; i < dishTable.getColumnCount(); i++) {
             sorter.setSortable(i, false);
         }
-        // --- END OF NEW CODE ---
 
         TableColumn actionsColumn = dishTable.getColumn("Actions");
         
         TableActionListener listener = new TableActionListener() {
             @Override
             public void onEdit(int row) {
-                // Because sorting is disabled, the view row is now ALWAYS the same as the model row.
-                // This makes the logic simple and reliable.
                 int modelRow = dishTable.convertRowIndexToModel(row);
-                int dishId = (int) dishTable.getValueAt(modelRow, 0);
-                mainFrame.showEditDishForm(dishId);
+                if (modelRow != -1) {
+                    int dishId = (int) dishTable.getValueAt(modelRow, 0);
+                    mainFrame.showEditDishForm(dishId);
+                }
             }
 
             @Override
             public void onDelete(int row) {
                 int modelRow = dishTable.convertRowIndexToModel(row);
-                deleteDish(modelRow);
+                if (modelRow != -1) {
+                    deleteDish(modelRow);
+                }
             }
         };
         
         actionsColumn.setCellRenderer(new TableActionCellRenderer());
-        // Use the simple editor again; the complex one is no longer needed since the row indices are stable.
-        actionsColumn.setCellEditor(new TableActionCellEditor(dishTable, listener));
+        // Use the simple constructor.
+        actionsColumn.setCellEditor(new TableActionCellEditor(listener));
         actionsColumn.setMinWidth(150);
         actionsColumn.setMaxWidth(180);
         actionsColumn.setPreferredWidth(160);

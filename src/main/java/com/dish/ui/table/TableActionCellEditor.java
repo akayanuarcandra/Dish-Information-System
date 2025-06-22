@@ -18,15 +18,17 @@ import javax.swing.table.TableCellEditor;
 public class TableActionCellEditor extends AbstractCellEditor implements TableCellEditor {
 
     private final JPanel panel;
-    private final JButton editButton;
-    private final JButton deleteButton;
+    private final TableActionListener listener;
+    private int editingRow;
 
-    public TableActionCellEditor(JTable table, TableActionListener listener) {
+    public TableActionCellEditor(TableActionListener listener) {
+        this.listener = listener;
+
         panel = new JPanel(new GridBagLayout());
         panel.setOpaque(true);
 
-        editButton = new JButton("Edit");
-        deleteButton = new JButton("Delete");
+        JButton editButton = new JButton("Edit");
+        JButton deleteButton = new JButton("Delete");
 
         stylizeButton(editButton, new Color(60, 179, 113), new Color(46, 139, 87));
         stylizeButton(deleteButton, new Color(220, 20, 60), new Color(178, 34, 34));
@@ -43,29 +45,21 @@ public class TableActionCellEditor extends AbstractCellEditor implements TableCe
         gbc.insets = new Insets(0, 5, 0, 0);
         panel.add(deleteButton, gbc);
 
-        // --- FINAL, ROBUST ACTION LISTENERS ---
         editButton.addActionListener(e -> {
-            // Get the currently edited row's index BEFORE stopping the edit.
-            int row = table.getEditingRow();
-            
-            // Now, tell the table to stop editing. This cleans up the UI.
-            fireEditingStopped();
-            
-            // With the correct row index captured, call the listener.
-            if (row != -1 && listener != null) {
-                listener.onEdit(row);
+            if (listener != null) {
+                listener.onEdit(editingRow);
             }
+            fireEditingStopped();
         });
 
         deleteButton.addActionListener(e -> {
-            int row = table.getEditingRow();
-            fireEditingStopped();
-            if (row != -1 && listener != null) {
-                listener.onDelete(row);
+            if (listener != null) {
+                listener.onDelete(editingRow);
             }
+            fireEditingStopped();
         });
     }
-    
+
     private void stylizeButton(JButton button, Color background, Color hover) {
         button.setBackground(background);
         button.setForeground(Color.WHITE);
@@ -85,7 +79,7 @@ public class TableActionCellEditor extends AbstractCellEditor implements TableCe
 
     @Override
     public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-        // This method just shows the editor component. No state needs to be stored here.
+        this.editingRow = row;
         panel.setBackground(UIManager.getColor("Button.background"));
         return panel;
     }
