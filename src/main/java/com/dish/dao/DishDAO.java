@@ -12,7 +12,7 @@ import com.dish.database.DatabaseConnection;
 import com.dish.model.Dish;
 
 public class DishDAO {
-
+    // Get all dishes from the database
     public List<Dish> getAllDishes() {
         List<Dish> dishes = new ArrayList<>();
         String sql = "SELECT * FROM dishes ORDER BY id";
@@ -29,6 +29,7 @@ public class DishDAO {
         return dishes;
     }
     
+    // Get a dish by its ID
     public Dish getDishById(int id) {
         String sql = "SELECT * FROM dishes WHERE id = ?";
         try (Connection conn = DatabaseConnection.getConnection();
@@ -46,7 +47,7 @@ public class DishDAO {
         return null;
     }
 
-
+    // Get dishes by type
     public boolean addDish(Dish dish) {
         String sql = "INSERT INTO dishes(name, type, price, ingredients, introduction, photo_path) VALUES(?, ?, ?, ?, ?, ?)";
         try (Connection conn = DatabaseConnection.getConnection();
@@ -76,6 +77,7 @@ public class DishDAO {
         return false;
     }
 
+    // Update an existing dish in the database
     public boolean updateDish(Dish dish) {
         String sql = "UPDATE dishes SET name = ?, type = ?, price = ?, ingredients = ?, introduction = ?, photo_path = ? WHERE id = ?";
         try (Connection conn = DatabaseConnection.getConnection();
@@ -96,6 +98,7 @@ public class DishDAO {
         return false;
     }
 
+    // Delete a dish from the database by its ID
     public boolean deleteDish(int dishId) {
         String sql = "DELETE FROM dishes WHERE id = ?";
         try (Connection conn = DatabaseConnection.getConnection();
@@ -108,6 +111,7 @@ public class DishDAO {
         return false;
     }
 
+    // Extract a Dish object from the ResultSet
     private Dish extractDishFromResultSet(ResultSet rs) throws SQLException {
         return new Dish(
                 rs.getInt("id"),

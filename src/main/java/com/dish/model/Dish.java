@@ -56,6 +56,7 @@ public class Dish {
                '}';
     }
     
+    // Converts the dish object to a string format suitable for file storage
     public String toFileString() {
         return String.join(";",
                 String.valueOf(id),
@@ -68,6 +69,7 @@ public class Dish {
         );
     }
     
+    // Static method to create a Dish object from a string line read from a file
     public static Dish fromFileString(String line) {
         String[] parts = line.split(";", 7);
         if (parts.length == 7) {

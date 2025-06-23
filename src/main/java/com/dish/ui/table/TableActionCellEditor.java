@@ -16,11 +16,11 @@ import javax.swing.UIManager;
 import javax.swing.table.TableCellEditor;
 
 public class TableActionCellEditor extends AbstractCellEditor implements TableCellEditor {
-
     private final JPanel panel;
     private final TableActionListener listener;
     private int editingRow;
 
+    // This interface defines the actions that can be performed on the table row
     public TableActionCellEditor(TableActionListener listener) {
         this.listener = listener;
 
@@ -60,6 +60,7 @@ public class TableActionCellEditor extends AbstractCellEditor implements TableCe
         });
     }
 
+    // This method styles the buttons with a background color and hover effect
     private void stylizeButton(JButton button, Color background, Color hover) {
         button.setBackground(background);
         button.setForeground(Color.WHITE);

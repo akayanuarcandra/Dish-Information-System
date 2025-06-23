@@ -36,16 +36,14 @@ public class DishFormPanel extends JPanel {
 
     private final DishDAO dishDAO;
     private final MenuManager mainFrame;
-    private final Dish dishToEdit; // Null if in "Add" mode
+    private final Dish dishToEdit; 
     private final boolean isEditMode;
 
-    // --- Form UI Components ---
     private final JTextField nameField = new JTextField(30);
     // private final JTextField typeField = new JTextField(30);
-    // --- MODIFICATION: Replaced JTextField with JComboBox for Dish Type ---
+    // Replaced JTextField with JComboBox for Dish Type, for using predefined types (dropdown menu)
     private final String[] DISH_TYPES = {"Main Course", "Appetizer", "Dessert", "Beverage", "Side Dish", "Salad"};
     private final JComboBox<String> typeComboBox = new JComboBox<>(DISH_TYPES);
-    // --- END MODIFICATION ---
     private final JTextField priceField = new JTextField(10);
     private final JTextArea ingredientsArea = new JTextArea(3, 30);
     private final JTextArea introArea = new JTextArea(3, 30);
@@ -55,6 +53,7 @@ public class DishFormPanel extends JPanel {
     private static final int PREVIEW_IMAGE_WIDTH = 100;
     private static final int PREVIEW_IMAGE_HEIGHT = 100;
 
+    // Constructor for DishFormPanel
     public DishFormPanel(DishDAO dishDAO, MenuManager mainFrame, Dish dishToEdit) {
         this.dishDAO = dishDAO;
         this.mainFrame = mainFrame;
@@ -67,41 +66,41 @@ public class DishFormPanel extends JPanel {
 
         buildForm();
 
-        // If we are in "Edit" mode, populate the form fields with the dish's data
+        // If in "Edit" mode, populate the form fields with the dish's data
         if (isEditMode) {
             populateForm();
         }
     }
 
+    // Build the form layout using GridBagLayout
     private void buildForm() {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.anchor = GridBagConstraints.WEST;
 
-        // --- Title ---
+        // Title Row
         JLabel titleLabel = new JLabel(isEditMode ? "Edit Dish" : "Add New Dish");
         titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.gridwidth = 3;
         gbc.anchor = GridBagConstraints.CENTER;
-        gbc.insets = new Insets(5, 5, 20, 5); // Add more space below title
+        gbc.insets = new Insets(5, 5, 20, 5); 
         add(titleLabel, gbc);
         gbc.gridwidth = 1;
         gbc.anchor = GridBagConstraints.WEST;
-        gbc.insets = new Insets(5, 5, 5, 5); // Reset insets
+        gbc.insets = new Insets(5, 5, 5, 5); 
 
-        // --- Form Fields ---
-        int y = 1; // Start at row 1
+        // Form Fields
+        int y = 1; // Start from row 1 after the title
         addFormField(new JLabel("Name:"), nameField, y++);
         // addFormField(new JLabel("Type:"), typeField, y++);
-        // --- MODIFICATION: Use the new JComboBox instead of the old JTextField ---
+        // Use the new JComboBox instead of the old JTextField
         addFormField(new JLabel("Type:"), typeComboBox, y++);
-        // --- END MODIFICATION ---
         addFormField(new JLabel("Price (¥):"), priceField, y++);
 
-        // Text Areas need special handling for scroll panes
+        // Ingredients and Introduction Areas
         gbc.gridy = y++; gbc.gridx = 0; gbc.anchor = GridBagConstraints.NORTHWEST; add(new JLabel("Ingredients:"), gbc);
         ingredientsArea.setLineWrap(true); ingredientsArea.setWrapStyleWord(true);
         JScrollPane ingredientsScrollPane = new JScrollPane(ingredientsArea);
@@ -109,6 +108,7 @@ public class DishFormPanel extends JPanel {
         add(ingredientsScrollPane, gbc);
         resetGbc(gbc);
 
+        // Introduction Row
         gbc.gridy = y++; gbc.gridx = 0; gbc.anchor = GridBagConstraints.NORTHWEST; add(new JLabel("Introduction:"), gbc);
         introArea.setLineWrap(true); introArea.setWrapStyleWord(true);
         JScrollPane introScrollPane = new JScrollPane(introArea);
@@ -132,7 +132,7 @@ public class DishFormPanel extends JPanel {
         add(imagePreviewLabel, gbc);
         resetGbc(gbc);
 
-        // --- Action Buttons ---
+        // Action Buttons 
         JButton saveButton = new JButton(isEditMode ? "Save Changes" : "Add Dish");
         saveButton.addActionListener(e -> saveDish());
 
@@ -145,7 +145,7 @@ public class DishFormPanel extends JPanel {
         buttonPanel.add(cancelButton);
 
         gbc.gridy = y; gbc.gridx = 0; gbc.gridwidth = 3; gbc.anchor = GridBagConstraints.EAST; gbc.fill = GridBagConstraints.NONE;
-        gbc.weighty = 0.1; // Push content up
+        gbc.weighty = 0.1; 
         add(buttonPanel, gbc);
     }
     
@@ -174,13 +174,13 @@ public class DishFormPanel extends JPanel {
         gbc.weighty = 0;
         gbc.anchor = GridBagConstraints.WEST;
     }
-
+    
+    // Populate the form fields with the dish data if in edit mode
     private void populateForm() {
         nameField.setText(dishToEdit.getName());
         // typeField.setText(dishToEdit.getType());
-        // --- MODIFICATION: Set the selected item in the dropdown for editing ---
+        // Set the selected item in the dropdown for editing 
         typeComboBox.setSelectedItem(dishToEdit.getType());
-        // --- END MODIFICATION ---
         priceField.setText(String.format("%.2f", dishToEdit.getPrice()));
         ingredientsArea.setText(dishToEdit.getIngredients());
         introArea.setText(dishToEdit.getIntroduction());
@@ -188,6 +188,7 @@ public class DishFormPanel extends JPanel {
         updateImagePreview(dishToEdit.getPhotoPath());
     }
 
+    // Method to browse for an image file and update the photo path field and preview
     private void browseForImage() {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Select Photo File");
@@ -199,7 +200,8 @@ public class DishFormPanel extends JPanel {
             updateImagePreview(path);
         }
     }
-
+     
+    // Update the image preview label based on the selected photo path
     private void updateImagePreview(String path) {
         if (path != null && !path.isEmpty()) {
             ImageIcon previewIcon = loadImageIconFromFile(path, PREVIEW_IMAGE_WIDTH, PREVIEW_IMAGE_HEIGHT);
@@ -211,13 +213,12 @@ public class DishFormPanel extends JPanel {
         }
     }
 
+    // Method to save the dish data
     private void saveDish() {
-        // Get all data from fields and validate it
         String name = nameField.getText().trim();
         // String type = typeField.getText().trim();
-        // --- MODIFICATION: Get the selected value from the dropdown ---
+        // Get the selected value from the dropdown 
         String type = (String) typeComboBox.getSelectedItem();
-        // --- END MODIFICATION ---
         String priceStr = priceField.getText().trim().replace(",", ".");
         String ingredients = ingredientsArea.getText().trim();
         String intro = introArea.getText().trim();

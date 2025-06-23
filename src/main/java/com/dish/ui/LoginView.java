@@ -1,47 +1,45 @@
-// Filename: LoginView.java
 package com.dish.ui;
 
 import java.awt.BorderLayout;
-import java.awt.Color; // Added
+import java.awt.Color; 
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.FontMetrics; // Add this import
+import java.awt.FontMetrics; 
 import java.awt.Graphics;
-import java.awt.GridBagConstraints; // Added
+import java.awt.GridBagConstraints; 
 import java.awt.GridBagLayout;
 import java.awt.Image;
 import java.awt.Insets;
-import java.awt.event.FocusAdapter; // Added
+import java.awt.event.FocusAdapter; 
 import java.awt.event.FocusEvent;
-import java.net.URL; // Add this import
+import java.net.URL; 
 
-import javax.swing.BorderFactory; // Add this import
+import javax.swing.BorderFactory; 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JFrame; // Added
+import javax.swing.JFrame; 
 import javax.swing.JLabel;
-import javax.swing.JOptionPane; // Added
+import javax.swing.JOptionPane; 
 import javax.swing.JPanel;
-import javax.swing.JPasswordField; // Added
+import javax.swing.JPasswordField; 
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
-import javax.swing.border.LineBorder; // Added
+import javax.swing.border.LineBorder; 
 
 import com.dish.dao.UserDAO;
 
 public class LoginView extends JFrame {
-
     private JTextField usernameField;
     private JPasswordField passwordField;
-    private JButton loginButton; // Declare loginButton as a class member
+    private JButton loginButton; 
 
     private final UserDAO userDAO;
 
     private static final String USERNAME_PLACEHOLDER = "Enter your username";
     private static final String PASSWORD_PLACEHOLDER = "Enter your password";
-    private static final String IMAGE_PATH = "/images/login.png"; // Ensure this image exists
-    private static final String LOGO_PATH = "/images/logo.png"; // Ensure this logo exists
+    private static final String IMAGE_PATH = "/images/login.png"; 
+    private static final String LOGO_PATH = "/images/logo.png"; 
 
     private static final Color COLOR_BACKGROUND = Color.WHITE;
     private static final Color COLOR_PLACEHOLDER_TEXT = Color.GRAY;
@@ -50,18 +48,18 @@ public class LoginView extends JFrame {
     private static final Color COLOR_EXIT_BUTTON_BG = new Color(189, 7, 7);
     private static final Color COLOR_BUTTON_FG = Color.WHITE;
     private static final Color COLOR_FIELD_BORDER = Color.LIGHT_GRAY;
-    private static final Color COLOR_IMAGE_PANEL_BG = new Color(230, 230, 230); // Example background for image panel
+    private static final Color COLOR_IMAGE_PANEL_BG = new Color(230, 230, 230); 
 
     private static final int PADDING_EMPTY_BORDER = 10;
     private static final int PADDING_FIELD_BOTTOM = 5;
     private static final int PADDING_BUTTON_PANEL_TOP = 50;
     private static final int BUTTON_HEIGHT_INCREASE = 10;
-    private static final int FORM_PANEL_PADDING = 75; // Padding for the form panel itself
-    private static final int IMAGE_PREFERRED_WIDTH = 1000; // Adjust as needed
+    private static final int FORM_PANEL_PADDING = 75; 
+    private static final int IMAGE_PREFERRED_WIDTH = 1000; 
 
     public LoginView() {
-        super("Dish Information Management");
-        this.userDAO = new UserDAO(); // Initialize the UserDAO
+        super("Dish Information Management"); // title of the window
+        this.userDAO = new UserDAO(); // Initialize the UserDAO instance
         initializeUI();
     }
 
@@ -72,7 +70,7 @@ public class LoginView extends JFrame {
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.setBackground(COLOR_BACKGROUND);
 
-        JPanel imagePanel = createImagePanel(); // This will now return our custom panel
+        JPanel imagePanel = createImagePanel(); // Create the custom panel with the background image
         mainPanel.add(imagePanel, BorderLayout.WEST);
 
         JPanel formPanel = createFormPanel();
@@ -115,14 +113,11 @@ public class LoginView extends JFrame {
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);
             if (image != null) {
-                // This is the version from your visible code, which stretches the image.
-                // If you want "cover" or "fill height while maintaining aspect ratio",
-                // you'll need to use one of the more complex paintComponent versions previously provided.
-                g.drawImage(image, 0, 0, getWidth(), getHeight(), this);
+                g.drawImage(image, 0, 0, getWidth(), getHeight(), this); // Scale the image to fill the panel
             } else {
                 // Fallback text if image is not loaded
-                g.setColor(Color.DARK_GRAY); // Changed error text color
-                String errorMsg = "Image error: " + IMAGE_PATH; // More informative
+                g.setColor(Color.DARK_GRAY); // Error text color
+                String errorMsg = "Image error: " + IMAGE_PATH; 
                 FontMetrics fm = g.getFontMetrics();
                 int stringWidth = fm.stringWidth(errorMsg);
                 // Center the error message
@@ -135,8 +130,7 @@ public class LoginView extends JFrame {
     }
 
     private JPanel createImagePanel() {
-        // Simply return an instance of our custom BackgroundImagePanel
-        return new BackgroundImagePanel(IMAGE_PATH);
+        return new BackgroundImagePanel(IMAGE_PATH); // Draw the background image
     }
 
     private JPanel createFormPanel() {
@@ -225,14 +219,14 @@ public class LoginView extends JFrame {
         panel.add(passwordField, gbc);
 
         // Login Button
-        this.loginButton = createLoginButton(); // Assign to the class member
+        this.loginButton = createLoginButton(); 
         gbc.gridx = 0;
         gbc.gridy = 6; 
         gbc.gridwidth = 1; 
         gbc.weightx = 1.0; 
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(PADDING_BUTTON_PANEL_TOP, 0, 0, 5); 
-        panel.add(this.loginButton, gbc); // Add the class member instance
+        panel.add(this.loginButton, gbc); 
 
         // Exit Button ("X")
         JButton exitButton = createExitButton();
@@ -248,20 +242,20 @@ public class LoginView extends JFrame {
         // Spacer Panel for 50px space below buttons
         JPanel bottomSpacer = new JPanel();
         bottomSpacer.setOpaque(false); // Make it transparent
-        bottomSpacer.setPreferredSize(new Dimension(1, 100)); // Width 1, Height 50
+        bottomSpacer.setPreferredSize(new Dimension(1, 100));
         gbc.gridx = 0;
-        gbc.gridy = 7; // Row after the buttons
-        gbc.gridwidth = 2; // Span both columns
+        gbc.gridy = 7; 
+        gbc.gridwidth = 2; 
         gbc.weightx = 0;
-        gbc.weighty = 0; // Don't let it expand vertically beyond its preferred size
+        gbc.weighty = 0; 
         gbc.fill = GridBagConstraints.NONE;
-        gbc.anchor = GridBagConstraints.CENTER; // Or NORTH, doesn't matter much for a fixed size spacer
-        gbc.insets = new Insets(0, 0, 0, 0); // No insets for the spacer itself
+        gbc.anchor = GridBagConstraints.CENTER; 
+        gbc.insets = new Insets(0, 0, 0, 0); 
         panel.add(bottomSpacer, gbc);
 
 
         // Action Listeners
-        this.loginButton.addActionListener(e -> handleLogin()); // Use the class member instance
+        this.loginButton.addActionListener(e -> handleLogin()); 
         exitButton.addActionListener(e -> System.exit(0));
 
         return panel;
@@ -336,7 +330,7 @@ public class LoginView extends JFrame {
         });
     }
 
-
+    // Creates a styled button with a specific background color
     private JButton createStyledButton(String text, Color backgroundColor) {
         JButton button = new JButton(text);
         button.setBackground(backgroundColor);
@@ -354,18 +348,18 @@ public class LoginView extends JFrame {
     }
 
     private JButton createExitButton() {
-        JButton button = createStyledButton("✖", COLOR_EXIT_BUTTON_BG); // Text is "X"
-        // Make it square based on its calculated preferred height
+        JButton button = createStyledButton("✖", COLOR_EXIT_BUTTON_BG); 
         Dimension currentPreferredSize = button.getPreferredSize();
         button.setPreferredSize(new Dimension(currentPreferredSize.height, currentPreferredSize.height));
         return button;
     }
 
+    // Handles the login logic when the login button is clicked
     private void handleLogin() {
         String username = usernameField.getText();
         String password = new String(passwordField.getPassword());
 
-        System.out.println("LOGIN VIEW: Attempting login with user='" + username + "', pass='" + password + "'"); // <-- ADD THIS LINE
+        System.out.println("LOGIN VIEW: Attempting login with user='" + username + "', pass='" + password + "'"); 
 
         if (USERNAME_PLACEHOLDER.equals(username) || PASSWORD_PLACEHOLDER.equals(password) || username.isEmpty() || password.isEmpty()) {
              JOptionPane.showMessageDialog(this,
@@ -376,8 +370,8 @@ public class LoginView extends JFrame {
         }
 
         if (userDAO.validateUser(username, password)) {
-            this.dispose(); // Close the login window
-            SwingUtilities.invokeLater(() -> new MenuManager().setVisible(true)); // Open the MenuManager window
+            this.dispose(); 
+            SwingUtilities.invokeLater(() -> new MenuManager().setVisible(true)); 
         } else {
             JOptionPane.showMessageDialog(this,
                     "Invalid username or password.",

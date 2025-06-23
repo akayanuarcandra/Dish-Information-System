@@ -1,39 +1,64 @@
 package com.dish.ui;
 
+import java.awt.BorderLayout;
+import java.awt.CardLayout;
+import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Image;
+import java.awt.Insets;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.net.URL;
+import java.util.List;
+
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.border.EmptyBorder;
+import javax.swing.filechooser.FileNameExtensionFilter;
+
 import com.dish.dao.DishDAO;
 import com.dish.database.DatabaseConnection;
 import com.dish.model.Dish;
 
-import javax.imageio.ImageIO;
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import javax.swing.filechooser.FileNameExtensionFilter;
-import java.awt.*;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.io.*;
-import java.net.URL;
-import java.util.List;
-
 public class MenuManager extends JFrame {
 
-    // --- UI Constants ---
+    // UI Constants
     private static final Color SIDEBAR_BACKGROUND = new Color(40, 169, 145);
     private static final Color SIDEBAR_TEXT_COLOR = Color.WHITE;
     private static final String ICON_PATH = "/images/logo_white.png";
     private static final Font DEFAULT_FONT = new Font("Arial", Font.PLAIN, 14);
     private static final Font TITLE_FONT = new Font("Arial", Font.BOLD, 16);
 
-    // --- Core Components ---
+    // Core components
     private final JPanel mainContentPanel;
     private final DishDAO dishDAO;
 
-    // --- Panels managed by CardLayout ---
+    // Panels for different functionalities
     private final WelcomePanel welcomePanel;
     private final SearchDishPanel searchDishPanel;
-    // DishFormPanel is created on-the-fly since it can be for adding or editing specific dishes
 
+    // Constructor initializes the main frame and sets up the UI
     public MenuManager() {
         this.dishDAO = new DishDAO();
 
@@ -52,16 +77,15 @@ public class MenuManager extends JFrame {
             }
         });
 
-        // --- Sidebar ---
+        // Sidebar
         JPanel sidebarPanel = createSidebarPanel();
         add(sidebarPanel, BorderLayout.WEST);
 
-        // --- Main Content Area ---
-        // CardLayout is perfect for swapping between different full-screen panels
+        // Main content area
         mainContentPanel = new JPanel(new CardLayout());
         add(mainContentPanel, BorderLayout.CENTER);
 
-        // --- Create Panel Instances ---
+        // Create and add the primary panels
         welcomePanel = new WelcomePanel();
         searchDishPanel = new SearchDishPanel(dishDAO, this);
 
@@ -74,9 +98,8 @@ public class MenuManager extends JFrame {
         setVisible(true);
     }
 
-    // --- Panel Switching Methods ---
-    // These methods are called by the sidebar buttons or other panels
-
+    // Panel switching methods
+    // These methods control which panel is displayed in the main content area.
     public void showWelcomePanel() {
         CardLayout cl = (CardLayout) (mainContentPanel.getLayout());
         cl.show(mainContentPanel, "WELCOME");
@@ -92,9 +115,9 @@ public class MenuManager extends JFrame {
     public void showAddDishForm() {
         // Create a new form panel for adding a dish (dish is null)
         DishFormPanel addForm = new DishFormPanel(dishDAO, this, null);
-        mainContentPanel.add(addForm, "ADD_FORM"); // Add it to the card layout
+        mainContentPanel.add(addForm, "ADD_FORM"); 
         CardLayout cl = (CardLayout) (mainContentPanel.getLayout());
-        cl.show(mainContentPanel, "ADD_FORM"); // Switch to it
+        cl.show(mainContentPanel, "ADD_FORM"); 
     }
 
     public void showEditDishForm(int dishId) {
@@ -108,13 +131,11 @@ public class MenuManager extends JFrame {
             cl.show(mainContentPanel, cardName);
         } else {
             JOptionPane.showMessageDialog(this, "Could not find the dish to edit. It may have been deleted by another user.", "Error", JOptionPane.ERROR_MESSAGE);
-            showSearchDishPanel(); // Go back to the search view
+            showSearchDishPanel(); 
         }
     }
 
-    // --- Sidebar Creation ---
-    // This logic remains here as it's part of the main frame's structure
-
+    // Sidebar creation
     private JPanel createSidebarPanel() {
         JPanel panel = new JPanel();
         panel.setBackground(SIDEBAR_BACKGROUND);
@@ -197,9 +218,8 @@ public class MenuManager extends JFrame {
         });
         return button;
     }
-    
-    // --- Import/Export Logic ---
-    // This can stay here or be moved to a dedicated utility class if it grows more complex.
+
+    // Import/Export Logic
     private void handleImportDishes() {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Import Dishes from TXT");
@@ -262,7 +282,7 @@ public class MenuManager extends JFrame {
         }
     }
 
-    // --- Helper Methods ---
+    // Loads an icon from the classpath 
     private ImageIcon loadIconFromClasspath(String path, int width, int height) {
         URL imgUrl = getClass().getResource(path);
         if (imgUrl != null) {
@@ -276,7 +296,6 @@ public class MenuManager extends JFrame {
         return null;
     }
 
-    // --- Main Method ---
     public static void main(String[] args) {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());

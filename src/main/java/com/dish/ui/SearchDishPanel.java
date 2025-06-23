@@ -58,11 +58,11 @@ public class SearchDishPanel extends JPanel {
         setBorder(new EmptyBorder(20, 20, 20, 20));
         setBackground(Color.WHITE);
 
-        // --- Top Search Bar ---
+        // Search Bar
         JPanel topPanel = createTopPanel();
         add(topPanel, BorderLayout.NORTH);
 
-        // --- Table ---
+        // Table
         dishTableModel = new DefaultTableModel(TABLE_COLUMNS, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -94,6 +94,7 @@ public class SearchDishPanel extends JPanel {
         refreshTableData();
     }
 
+    // Creates the top panel with search functionality and clear button
     private JPanel createTopPanel() {
         JPanel topPanel = new JPanel(new BorderLayout(10, 0));
         topPanel.setOpaque(false);
@@ -110,14 +111,12 @@ public class SearchDishPanel extends JPanel {
         topPanel.add(searchInputPanel, BorderLayout.WEST);
 
         ActionListener searchAction = e -> {
-            // --- THIS IS THE KEY FIX ---
-            // If a cell is currently being edited (e.g., the action buttons are open),
-            // programmatically stop the editing process before applying a filter.
+            // Check if the table is currently editing before applying the filter
             if (dishTable.isEditing()) {
                 dishTable.getCellEditor().stopCellEditing();
             }
-            // --- END OF KEY FIX ---
 
+            // Check if the search field is empty before applying the filter
             String text = searchField.getText();
             if (text.trim().isEmpty()) {
                 sorter.setRowFilter(null);
@@ -152,16 +151,19 @@ public class SearchDishPanel extends JPanel {
         return topPanel;
     }
 
+    // Sets up the table with custom renderers and editors
     private void setupTable() {
         dishTable.setFont(new Font("Arial", Font.PLAIN, 12));
         dishTable.getTableHeader().setFont(new Font("Arial", Font.BOLD, 12));
         dishTable.setRowHeight(TABLE_IMAGE_HEIGHT + 10);
         dishTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         
+        // Disable sorting for all columns, because apparently it's kinda broken in java swing
         for (int i = 0; i < dishTable.getColumnCount(); i++) {
             sorter.setSortable(i, false);
         }
 
+        // Set up the table columns
         TableColumn actionsColumn = dishTable.getColumn("Actions");
         
         TableActionListener listener = new TableActionListener() {
@@ -183,18 +185,20 @@ public class SearchDishPanel extends JPanel {
             }
         };
         
+        // Set up the actions column with custom renderer and editor
         actionsColumn.setCellRenderer(new TableActionCellRenderer());
-        // Use the simple constructor.
         actionsColumn.setCellEditor(new TableActionCellEditor(listener));
         actionsColumn.setMinWidth(150);
         actionsColumn.setMaxWidth(180);
         actionsColumn.setPreferredWidth(160);
 
+        // Set up the photo column
         if (photoColumnIndex != -1) {
             TableColumn photoCol = dishTable.getColumnModel().getColumn(photoColumnIndex);
             photoCol.setPreferredWidth(TABLE_IMAGE_HEIGHT + 20);
         }
-
+        
+        // Set up the price column to format as currency
         TableColumn priceCol = dishTable.getColumnModel().getColumn(priceColumnIndex);
         priceCol.setCellRenderer(new DefaultTableCellRenderer() {
             @Override
@@ -207,6 +211,7 @@ public class SearchDishPanel extends JPanel {
         });
     }
 
+    // Refreshes the table data from the database
     public void refreshTableData() {
         dishTableModel.setRowCount(0);
         List<Dish> dishList = dishDAO.getAllDishes();
@@ -224,7 +229,7 @@ public class SearchDishPanel extends JPanel {
             });
         }
     }
-
+    
     private void deleteDish(int modelRowIndex) {
         if (modelRowIndex >= 0) {
             int dishId = (int) dishTableModel.getValueAt(modelRowIndex, 0);

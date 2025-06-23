@@ -8,11 +8,13 @@ import java.sql.SQLException;
 import com.dish.database.DatabaseConnection;
 
 public class UserDAO {
+    // This method validates user credentials against the database.
     public boolean validateUser(String username, String password) {
         String sql = "SELECT * FROM users WHERE username = ? AND password = ?";
 
         System.out.println("USER DAO: Executing query for user='" + username + "'");
 
+        // Ensure that the SQL query is correct and uses prepared statements to prevent SQL injection
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
@@ -20,9 +22,8 @@ public class UserDAO {
             pstmt.setString(2, password);
 
             try (ResultSet rs = pstmt.executeQuery()) {
-                // return rs.next(); // If a row is returned, the user exists and credentials are correct.
                 boolean userExists = rs.next();
-                System.out.println("USER DAO: User found in database? " + userExists); // <-- ADD THIS LINE
+                System.out.println("USER DAO: User found in database? " + userExists); 
                 return userExists;
             }
         } catch (SQLException e) {

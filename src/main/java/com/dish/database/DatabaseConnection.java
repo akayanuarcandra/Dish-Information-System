@@ -13,10 +13,10 @@ public class DatabaseConnection {
 
     private DatabaseConnection() {}
     
+    // This method returns a singleton connection to the database.
     public static Connection getConnection() throws SQLException {
         if (connection == null || connection.isClosed()) {
             try {
-                // The new driver class name for MySQL Connector/J 8.0+
                 Class.forName("com.mysql.cj.jdbc.Driver");
                 connection = DriverManager.getConnection(URL, USER, PASSWORD);
             } catch (ClassNotFoundException e) {
@@ -27,7 +27,8 @@ public class DatabaseConnection {
         }
         return connection;
     }
-
+    
+    // This method closes the database connection if it is open.
     public static void closeConnection() {
         if (connection != null) {
             try {
