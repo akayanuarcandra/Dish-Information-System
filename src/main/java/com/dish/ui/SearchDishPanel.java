@@ -159,9 +159,9 @@ public class SearchDishPanel extends JPanel {
         dishTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         
         // Disable sorting for all columns, because apparently it's kinda broken in java swing
-        for (int i = 0; i < dishTable.getColumnCount(); i++) {
-            sorter.setSortable(i, false);
-        }
+        // for (int i = 0; i < dishTable.getColumnCount(); i++) {
+        //     sorter.setSortable(i, false);
+        // }
 
         // Set up the table columns
         TableColumn actionsColumn = dishTable.getColumn("Actions");
@@ -171,7 +171,7 @@ public class SearchDishPanel extends JPanel {
             public void onEdit(int row) {
                 int modelRow = dishTable.convertRowIndexToModel(row);
                 if (modelRow != -1) {
-                    int dishId = (int) dishTable.getValueAt(modelRow, 0);
+                    int dishId = (int) dishTableModel.getValueAt(modelRow, 0);
                     mainFrame.showEditDishForm(dishId);
                 }
             }
